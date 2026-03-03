@@ -15,8 +15,15 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
     },
   });
   if (!res.ok) {
-    const err = await res.text();
-    throw new Error(err || res.statusText);
+    const text = await res.text();
+    let message = res.statusText;
+    try {
+      const json = JSON.parse(text) as { message?: string };
+      if (typeof json?.message === 'string') message = json.message;
+    } catch {
+      if (text) message = text;
+    }
+    throw new Error(message);
   }
   return res.json();
 }
