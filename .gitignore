@@ -1,0 +1,62 @@
+# Node
+node_modules/
+
+# Dependency directories
+dist/
+build/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+.env.*
+!.env.example
+
+# IDEs
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Misc
+*.local
+*.cache
+*.log
+
+# TypeScript
+*.tsbuildinfo
+# ignore emitted JS/definitions in source folders
+frontend/src/**/*.js
+frontend/src/**/*.d.ts
+
+# AWS
+.aws/
+
+# Output
+coverage/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Others
+*.tgz
+*.swp
+*.bak
+*.tmp
+
+# Frontend build
+frontend/dist/
+
+# Backend build
+aws-lambda-backend/dist/
+aws-lambda-backend/.serverless/

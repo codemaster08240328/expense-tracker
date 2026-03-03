@@ -1,0 +1,59 @@
+{
+  "name": "aws-lambda-monorepo",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Monorepo for AWS Lambda backend and frontend app.",
+  "scripts": {
+    "setup:aws": "pnpm genenv:backend && pnpm setup:awscli && pnpm setup:serverless && pnpm setup:awsauth",
+    "setup:awscli": "which aws || (curl \"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\" -o \"awscliv2.zip\" && unzip awscliv2.zip && sudo ./aws/install)",
+    "setup:serverless": "pnpm add -g serverless",
+    "setup:awsauth": "pnpm exec tsx scripts/aws-env-setup.ts",
+    "genenv:backend": "cp -n aws-lambda-backend/.env.example aws-lambda-backend/.env || true",
+    "genenv:frontend": "(cp -n frontend/.env.example frontend/.env.development || true) && (cp -n frontend/.env.example frontend/.env.production || true)",
+    "genenv": "pnpm genenv:backend && pnpm genenv:frontend",
+    "dev:backend": "pnpm genenv:backend && pnpm --filter aws-lambda-backend run build && pnpm --filter aws-lambda-backend exec serverless offline",
+    "dev:frontend": "pnpm genenv:frontend && pnpm --filter frontend dev",
+    "dev": "pnpm genenv && pnpm dev:backend & pnpm dev:frontend",
+    "build:backend": "pnpm --filter aws-lambda-backend run build",
+    "build:frontend": "pnpm --filter frontend run build",
+    "build": "pnpm build:backend && pnpm build:frontend",
+    "deploy:backend": "pnpm --filter aws-lambda-backend exec serverless deploy",
+    "deploy:frontend": "aws s3 sync frontend/dist/ s3://expense-tracker-2026 --delete",
+    "deploy": "pnpm deploy:backend && pnpm deploy:frontend",
+    "lint:frontend": "pnpm --filter frontend exec eslint \"src/**/*.{ts,tsx,js,jsx}\"",
+    "typecheck:frontend": "pnpm --filter frontend exec tsc --noEmit",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,css,md}\"",
+    "ci": "pnpm --filter aws-lambda-backend run build && pnpm run typecheck:frontend && pnpm run lint:frontend"
+  },
+  "workspaces": [
+    "aws-lambda-backend",
+    "frontend"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.7.0",
+    "dotenv": "^16.4.0",
+    "typescript": "~5.9.3",
+    "serverless": "^4.33.0",
+    "serverless-offline": "^14.5.0",
+    "jest": "^29.0.0",
+    "ts-jest": "^29.0.0",
+    "ts-node": "^10.9.2",
+    "@types/node": "^24.11.0",
+    "eslint": "^9.39.1",
+    "@eslint/js": "^9.39.1",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.4.24",
+    "eslint-plugin-react": "^7.32.2",
+    "@typescript-eslint/parser": "^6.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "prettier": "^2.8.8",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "globals": "^16.5.0",
+    "@babel/eslint-parser": "^7.28.6",
+    "@babel/preset-react": "^7.22.9"
+  }
+}

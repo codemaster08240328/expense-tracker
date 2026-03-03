@@ -1,0 +1,125 @@
+service: aws-lambda-backend
+frameworkVersion: '4'
+plugins:
+  - serverless-offline
+provider:
+  name: aws
+  runtime: nodejs20.x
+  region: us-east-1
+  httpApi:
+    cors: true
+  environment:
+    USERS_TABLE: Users
+    CATEGORIES_TABLE: Categories
+    EXPENSES_TABLE: Expenses
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+            - dynamodb:Query
+            - dynamodb:Scan
+          Resource:
+            - arn:aws:dynamodb:${self:provider.region}:*:table/Users
+            - arn:aws:dynamodb:${self:provider.region}:*:table/Categories
+            - arn:aws:dynamodb:${self:provider.region}:*:table/Expenses
+functions:
+  signup:
+    handler: src/handlers/auth/signup.signupHandler
+    events:
+      - httpApi:
+          path: /api/auth/signup
+          method: POST
+  login:
+    handler: src/handlers/auth/login.loginHandler
+    events:
+      - httpApi:
+          path: /api/auth/login
+          method: POST
+  getCategories:
+    handler: src/handlers/categories/getCategories.getCategoriesHandler
+    events:
+      - httpApi:
+          path: /api/categories
+          method: GET
+  createCategory:
+    handler: src/handlers/categories/createCategory.createCategoryHandler
+    events:
+      - httpApi:
+          path: /api/categories
+          method: POST
+  updateCategory:
+    handler: src/handlers/categories/updateCategory.updateCategoryHandler
+    events:
+      - httpApi:
+          path: /api/categories/{id}
+          method: PUT
+  deleteCategory:
+    handler: src/handlers/categories/deleteCategory.deleteCategoryHandler
+    events:
+      - httpApi:
+          path: /api/categories/{id}
+          method: DELETE
+  getExpenses:
+    handler: src/handlers/expenses/getExpenses.getExpensesHandler
+    events:
+      - httpApi:
+          path: /api/expenses
+          method: GET
+  createExpense:
+    handler: src/handlers/expenses/createExpense.createExpenseHandler
+    events:
+      - httpApi:
+          path: /api/expenses
+          method: POST
+  updateExpense:
+    handler: src/handlers/expenses/updateExpense.updateExpenseHandler
+    events:
+      - httpApi:
+          path: /api/expenses/{id}
+          method: PUT
+  deleteExpense:
+    handler: src/handlers/expenses/deleteExpense.deleteExpenseHandler
+    events:
+      - httpApi:
+          path: /api/expenses/{id}
+          method: DELETE
+resources:
+  Resources:
+    UsersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: Users
+        AttributeDefinitions:
+          - AttributeName: email
+            AttributeType: S
+        KeySchema:
+          - AttributeName: email
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+    CategoriesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: Categories
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+    ExpensesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: Expenses
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
