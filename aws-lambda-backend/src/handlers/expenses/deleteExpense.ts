@@ -18,7 +18,10 @@ export async function deleteExpenseHandler(
     return response(500, { message: 'Internal server error' });
   }
 
-  function response(statusCode: number, body: any): APIGatewayProxyResult {
+  function response(
+    statusCode: number,
+    body: Record<string, unknown> | unknown[] | string,
+  ): APIGatewayProxyResult {
     return {
       statusCode,
       headers: {

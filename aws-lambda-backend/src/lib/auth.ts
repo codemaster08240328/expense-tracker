@@ -11,7 +11,7 @@ export function getUserIdFromEvent(
     parts.length === 2 && parts[0] === 'Bearer' ? parts[1] : parts[0];
   try {
     const secret = process.env.JWT_SECRET || 'dev-secret';
-    const payload: any = jwt.verify(token, secret);
+    const payload = jwt.verify(token, secret) as Record<string, string>;
     return payload?.sub;
   } catch (err) {
     console.error('invalid token', err);

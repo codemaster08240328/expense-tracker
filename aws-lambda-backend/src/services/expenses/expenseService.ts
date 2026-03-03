@@ -1,11 +1,14 @@
 import {
   DynamoDBClient,
   ScanCommand,
+  ScanCommandInput,
   PutItemCommand,
   UpdateItemCommand,
+  UpdateItemCommandInput,
   DeleteItemCommand,
+  DeleteItemCommandInput,
 } from '@aws-sdk/client-dynamodb';
-// @ts-ignore
+// @ts-expect-error - uuid does not have TypeScript types
 import { v4 as uuidv4 } from 'uuid';
 
 const client = new DynamoDBClient({
@@ -14,12 +17,12 @@ const client = new DynamoDBClient({
 const EXPENSES_TABLE = process.env.EXPENSES_TABLE || 'Expenses';
 
 export async function getAllExpenses(userId?: string) {
-  const params: any = { TableName: EXPENSES_TABLE };
+  const params: Record<string, unknown> = { TableName: EXPENSES_TABLE };
   if (userId) {
     params.FilterExpression = 'userId = :uid';
     params.ExpressionAttributeValues = { ':uid': { S: userId } };
   }
-  const command = new ScanCommand(params);
+  const command = new ScanCommand(params as unknown as ScanCommandInput);
   const result = await client.send(command);
   return (result.Items || []).map((item) => ({
     id: item.id.S,
@@ -70,13 +73,13 @@ export async function updateExpense(
   }: { amount: number; categoryId: string; date: string; description?: string },
   userId?: string,
 ) {
-  const exprValues: any = {
+  const exprValues: Record<string, unknown> = {
     ':amount': { N: amount.toString() },
     ':categoryId': { S: categoryId },
     ':date': { S: date },
     ':description': description ? { S: description } : { NULL: true },
   };
-  const params: any = {
+  const params: Record<string, unknown> = {
     TableName: EXPENSES_TABLE,
     Key: { id: { S: id } },
     UpdateExpression:
@@ -89,8 +92,10 @@ export async function updateExpense(
     params.ConditionExpression = 'userId = :uid';
     params.ExpressionAttributeValues = { ...exprValues, ':uid': { S: userId } };
   }
-  const command = new UpdateItemCommand(params);
-  const result = await client.send(command);
+  const command = new UpdateItemCommand(
+    params as unknown as UpdateItemCommandInput,
+  );
+  await client.send(command);
   return {
     id,
     amount,
@@ -101,7 +106,7 @@ export async function updateExpense(
 }
 
 export async function deleteExpense(id: string, userId?: string) {
-  const params: any = {
+  const params: Record<string, unknown> = {
     TableName: EXPENSES_TABLE,
     Key: { id: { S: id } },
   };
@@ -109,6 +114,8 @@ export async function deleteExpense(id: string, userId?: string) {
     params.ConditionExpression = 'userId = :uid';
     params.ExpressionAttributeValues = { ':uid': { S: userId } };
   }
-  const command = new DeleteItemCommand(params);
+  const command = new DeleteItemCommand(
+    params as unknown as DeleteItemCommandInput,
+  );
   await client.send(command);
 }

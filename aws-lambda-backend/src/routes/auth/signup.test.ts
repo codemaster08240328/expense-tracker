@@ -1,6 +1,7 @@
 import { signupHandler } from './signup';
 import { getUserByEmail, putUser } from '@services/auth/userService';
 import { hash } from 'bcryptjs';
+import { APIGatewayProxyEvent } from 'aws-lambda';
 
 jest.mock('@services/auth/userService', () => ({
   getUserByEmail: jest.fn(),
@@ -19,11 +20,11 @@ const mockGetUserByEmail = getUserByEmail as jest.MockedFunction<
 const mockPutUser = putUser as jest.MockedFunction<typeof putUser>;
 const mockHash = hash as jest.MockedFunction<typeof hash>;
 
-function event(body: object): any {
+function event(body: object): APIGatewayProxyEvent {
   return {
     body: JSON.stringify(body),
     headers: {},
-  };
+  } as APIGatewayProxyEvent;
 }
 
 describe('signupHandler', () => {
@@ -34,18 +35,14 @@ describe('signupHandler', () => {
   });
 
   it('returns 400 when displayName is missing', async () => {
-    const res = await signupHandler(
-      event({ email: 'a@b.com', password: 'p' }),
-    );
+    const res = await signupHandler(event({ email: 'a@b.com', password: 'p' }));
     expect(res.statusCode).toBe(400);
     expect(JSON.parse(res.body).message).toBe('Missing fields');
     expect(mockPutUser).not.toHaveBeenCalled();
   });
 
   it('returns 400 when email is missing', async () => {
-    const res = await signupHandler(
-      event({ displayName: 'A', password: 'p' }),
-    );
+    const res = await signupHandler(event({ displayName: 'A', password: 'p' }));
     expect(res.statusCode).toBe(400);
     expect(JSON.parse(res.body).message).toBe('Missing fields');
   });

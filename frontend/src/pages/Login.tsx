@@ -47,7 +47,9 @@ export default function Login() {
       navigate('/expenses', { replace: true });
     } catch (error: unknown) {
       const message =
-        error instanceof Error ? error.message : 'Login failed. Please try again.';
+        error instanceof Error
+          ? error.message
+          : 'Login failed. Please try again.';
       setServerError(message);
     }
   };

@@ -2,7 +2,8 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { getAllCategories } from '@services/categories/categoryService';
 
 export async function getCategoriesHandler(
-  event: APIGatewayProxyEvent,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _event: APIGatewayProxyEvent,
 ): Promise<APIGatewayProxyResult> {
   try {
     const categories = await getAllCategories();

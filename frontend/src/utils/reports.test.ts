@@ -1,8 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import {
-  computeMonthlyTotals,
-  computeByCategory,
-} from './reports';
+import { computeMonthlyTotals, computeByCategory } from './reports';
 import type { Category, Expense } from '../types';
 
 describe('computeMonthlyTotals', () => {
@@ -17,9 +14,27 @@ describe('computeMonthlyTotals', () => {
   it('aggregates expenses by month for the given year', () => {
     // Use noon UTC so getMonth() is consistent across timezones
     const expenses: Expense[] = [
-      { id: '1', amount: 100, description: 'a', date: '2025-01-15T12:00:00.000Z', categoryId: 'c1' },
-      { id: '2', amount: 50, description: 'b', date: '2025-01-20T12:00:00.000Z', categoryId: 'c1' },
-      { id: '3', amount: 200, description: 'c', date: '2025-03-01T12:00:00.000Z', categoryId: 'c1' },
+      {
+        id: '1',
+        amount: 100,
+        description: 'a',
+        date: '2025-01-15T12:00:00.000Z',
+        categoryId: 'c1',
+      },
+      {
+        id: '2',
+        amount: 50,
+        description: 'b',
+        date: '2025-01-20T12:00:00.000Z',
+        categoryId: 'c1',
+      },
+      {
+        id: '3',
+        amount: 200,
+        description: 'c',
+        date: '2025-03-01T12:00:00.000Z',
+        categoryId: 'c1',
+      },
     ];
     const result = computeMonthlyTotals(expenses, 2025);
     expect(result[0].total).toBe(150);
@@ -29,7 +44,13 @@ describe('computeMonthlyTotals', () => {
 
   it('ignores expenses from other years', () => {
     const expenses: Expense[] = [
-      { id: '1', amount: 100, description: 'a', date: '2024-06-01T00:00:00.000Z', categoryId: 'c1' },
+      {
+        id: '1',
+        amount: 100,
+        description: 'a',
+        date: '2024-06-01T00:00:00.000Z',
+        categoryId: 'c1',
+      },
     ];
     const result = computeMonthlyTotals(expenses, 2025);
     expect(result.every((m) => m.total === 0)).toBe(true);
@@ -49,9 +70,27 @@ describe('computeByCategory', () => {
 
   it('aggregates by category and resolves names', () => {
     const expenses: Expense[] = [
-      { id: '1', amount: 30, description: 'a', date: '2025-01-01T00:00:00.000Z', categoryId: 'c1' },
-      { id: '2', amount: 20, description: 'b', date: '2025-01-02T00:00:00.000Z', categoryId: 'c1' },
-      { id: '3', amount: 50, description: 'c', date: '2025-01-03T00:00:00.000Z', categoryId: 'c2' },
+      {
+        id: '1',
+        amount: 30,
+        description: 'a',
+        date: '2025-01-01T00:00:00.000Z',
+        categoryId: 'c1',
+      },
+      {
+        id: '2',
+        amount: 20,
+        description: 'b',
+        date: '2025-01-02T00:00:00.000Z',
+        categoryId: 'c1',
+      },
+      {
+        id: '3',
+        amount: 50,
+        description: 'c',
+        date: '2025-01-03T00:00:00.000Z',
+        categoryId: 'c2',
+      },
     ];
     const result = computeByCategory(expenses, categories);
     expect(result).toHaveLength(2);
@@ -63,7 +102,13 @@ describe('computeByCategory', () => {
 
   it('uses "Unknown" for missing category id', () => {
     const expenses: Expense[] = [
-      { id: '1', amount: 10, description: 'a', date: '2025-01-01T00:00:00.000Z', categoryId: 'c99' },
+      {
+        id: '1',
+        amount: 10,
+        description: 'a',
+        date: '2025-01-01T00:00:00.000Z',
+        categoryId: 'c99',
+      },
     ];
     const result = computeByCategory(expenses, categories);
     expect(result).toHaveLength(1);

@@ -25,7 +25,10 @@ export async function updateExpenseHandler(
     return response(500, { message: 'Internal server error' });
   }
 
-  function response(statusCode: number, body: any): APIGatewayProxyResult {
+  function response(
+    statusCode: number,
+    body: Record<string, unknown>,
+  ): APIGatewayProxyResult {
     return {
       statusCode,
       headers: {

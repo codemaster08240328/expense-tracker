@@ -24,10 +24,7 @@ import {
 import { api } from '../api/client';
 import CategoryLegend from '../components/chartwidgets/CategoryLegend';
 import CustomizedLabel from '../components/chartwidgets/CustomizedLabel';
-import {
-  computeByCategory,
-  computeMonthlyTotals,
-} from '../utils/reports';
+import { computeByCategory, computeMonthlyTotals } from '../utils/reports';
 import type { Category, Expense } from '../types';
 
 const COLORS = [

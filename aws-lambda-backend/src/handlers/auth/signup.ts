@@ -1,6 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { hash } from 'bcryptjs';
-// @ts-ignore
+// @ts-expect-error - uuid does not have TypeScript types
 import { v4 as uuidv4 } from 'uuid'; // eslint-disable-line @typescript-eslint/no-var-requires
 import { putUser, getUserByEmail } from '@services/auth/userService';
 import jwt from 'jsonwebtoken';
@@ -54,7 +54,10 @@ export async function signupHandler(
     return response(500, { message: 'Internal server error' });
   }
 
-  function response(statusCode: number, body: any): APIGatewayProxyResult {
+  function response(
+    statusCode: number,
+    body: Record<string, unknown>,
+  ): APIGatewayProxyResult {
     return {
       statusCode,
       headers: {

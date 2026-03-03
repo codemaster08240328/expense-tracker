@@ -7,9 +7,5 @@ module.exports = {
   moduleNameMapper: {
     '^@services/(.*)$': '<rootDir>/src/services/$1',
   },
-  collectCoverageFrom: [
-    'src/**/*.ts',
-    '!src/**/*.test.ts',
-    '!src/**/*.d.ts',
-  ],
+  collectCoverageFrom: ['src/**/*.ts', '!src/**/*.test.ts', '!src/**/*.d.ts'],
 };

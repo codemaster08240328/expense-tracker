@@ -14,7 +14,10 @@ export async function getCategoriesHandler(
     return response(500, { message: 'Internal server error' });
   }
 
-  function response(statusCode: number, body: any): APIGatewayProxyResult {
+  function response(
+    statusCode: number,
+    body: Record<string, unknown> | unknown[] | string,
+  ): APIGatewayProxyResult {
     return {
       statusCode,
       headers: {
@@ -22,7 +25,7 @@ export async function getCategoriesHandler(
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
         'Access-Control-Allow-Methods': 'OPTIONS,POST,GET,PUT,DELETE',
       },
-      body: JSON.stringify(body),
+      body: typeof body === 'string' ? body : JSON.stringify(body),
     };
   }
 }

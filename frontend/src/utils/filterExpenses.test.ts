@@ -3,10 +3,34 @@ import { filterExpenses } from './filterExpenses';
 import type { Expense } from '../types';
 
 const expenses: Expense[] = [
-  { id: '1', amount: 10, description: 'a', date: '2025-02-01T00:00:00.000Z', categoryId: 'c1' },
-  { id: '2', amount: 20, description: 'b', date: '2025-02-15T00:00:00.000Z', categoryId: 'c1' },
-  { id: '3', amount: 30, description: 'c', date: '2025-03-10T00:00:00.000Z', categoryId: 'c2' },
-  { id: '4', amount: 40, description: 'd', date: '2025-04-01T00:00:00.000Z', categoryId: 'c1' },
+  {
+    id: '1',
+    amount: 10,
+    description: 'a',
+    date: '2025-02-01T00:00:00.000Z',
+    categoryId: 'c1',
+  },
+  {
+    id: '2',
+    amount: 20,
+    description: 'b',
+    date: '2025-02-15T00:00:00.000Z',
+    categoryId: 'c1',
+  },
+  {
+    id: '3',
+    amount: 30,
+    description: 'c',
+    date: '2025-03-10T00:00:00.000Z',
+    categoryId: 'c2',
+  },
+  {
+    id: '4',
+    amount: 40,
+    description: 'd',
+    date: '2025-04-01T00:00:00.000Z',
+    categoryId: 'c1',
+  },
 ];
 
 describe('filterExpenses', () => {

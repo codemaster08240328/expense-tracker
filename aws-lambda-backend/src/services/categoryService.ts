@@ -5,7 +5,7 @@ import {
   UpdateItemCommand,
   DeleteItemCommand,
 } from '@aws-sdk/client-dynamodb';
-// @ts-ignore
+// @ts-expect-error - uuid does not have TypeScript types
 import { v4 as uuidv4 } from 'uuid';
 
 const client = new DynamoDBClient({
@@ -58,7 +58,7 @@ export async function updateCategory(
     },
     ReturnValues: 'ALL_NEW',
   });
-  const result = await client.send(command);
+  await client.send(command);
   return {
     id,
     name,

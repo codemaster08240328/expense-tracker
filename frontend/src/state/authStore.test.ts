@@ -74,8 +74,14 @@ describe('authStore', () => {
 
       expect(localStorageMock.setItem).toHaveBeenCalledWith('token', 'xyz');
       expect(localStorageMock.setItem).toHaveBeenCalledWith('userId', 'u2');
-      expect(localStorageMock.setItem).toHaveBeenCalledWith('displayName', 'Bob');
-      expect(localStorageMock.setItem).toHaveBeenCalledWith('email', 'bob@example.com');
+      expect(localStorageMock.setItem).toHaveBeenCalledWith(
+        'displayName',
+        'Bob',
+      );
+      expect(localStorageMock.setItem).toHaveBeenCalledWith(
+        'email',
+        'bob@example.com',
+      );
       expect(useAuthStore.getState()).toMatchObject({
         token: 'xyz',
         id: 'u2',
@@ -87,7 +93,9 @@ describe('authStore', () => {
 
   describe('logout', () => {
     it('removes all auth keys from localStorage and clears state', () => {
-      useAuthStore.getState().login('t', { id: 'u', displayName: 'U', email: 'u@e.com' });
+      useAuthStore
+        .getState()
+        .login('t', { id: 'u', displayName: 'U', email: 'u@e.com' });
       useAuthStore.getState().logout();
 
       expect(localStorageMock.removeItem).toHaveBeenCalledWith('token');

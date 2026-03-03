@@ -1,6 +1,7 @@
 import { loginHandler } from './login';
 import { getUserByEmail } from '@services/auth/userService';
 import { compare } from 'bcryptjs';
+import { APIGatewayProxyEvent } from 'aws-lambda';
 
 jest.mock('@services/auth/userService', () => ({
   getUserByEmail: jest.fn(),
@@ -14,11 +15,11 @@ const mockGetUserByEmail = getUserByEmail as jest.MockedFunction<
 >;
 const mockCompare = compare as jest.MockedFunction<typeof compare>;
 
-function event(body: object): any {
+function event(body: object): APIGatewayProxyEvent {
   return {
     body: JSON.stringify(body),
     headers: {},
-  };
+  } as APIGatewayProxyEvent;
 }
 
 describe('loginHandler', () => {
@@ -57,7 +58,9 @@ describe('loginHandler', () => {
       password: 'hashed',
     });
     (mockCompare as jest.Mock).mockResolvedValue(false);
-    const res = await loginHandler(event({ email: 'a@b.com', password: 'wrong' }));
+    const res = await loginHandler(
+      event({ email: 'a@b.com', password: 'wrong' }),
+    );
     expect(res.statusCode).toBe(401);
     expect(JSON.parse(res.body).message).toBe('Invalid credentials');
     expect(mockCompare).toHaveBeenCalledWith('wrong', 'hashed');
@@ -71,7 +74,9 @@ describe('loginHandler', () => {
       password: 'hashed',
     });
     (mockCompare as jest.Mock).mockResolvedValue(true);
-    const res = await loginHandler(event({ email: 'a@b.com', password: 'secret' }));
+    const res = await loginHandler(
+      event({ email: 'a@b.com', password: 'secret' }),
+    );
     expect(res.statusCode).toBe(200);
     const body = JSON.parse(res.body);
     expect(body.token).toBe('mock-token');

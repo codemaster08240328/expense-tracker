@@ -1,11 +1,14 @@
 import {
   DynamoDBClient,
   ScanCommand,
+  ScanCommandInput,
   PutItemCommand,
   UpdateItemCommand,
+  UpdateItemCommandInput,
   DeleteItemCommand,
+  DeleteItemCommandInput,
 } from '@aws-sdk/client-dynamodb';
-// @ts-ignore
+// @ts-expect-error - uuid does not have TypeScript types
 import { v4 as uuidv4 } from 'uuid';
 
 const client = new DynamoDBClient({
@@ -14,12 +17,12 @@ const client = new DynamoDBClient({
 const CATEGORIES_TABLE = process.env.CATEGORIES_TABLE || 'Categories';
 
 export async function getAllCategories(userId?: string) {
-  const params: any = { TableName: CATEGORIES_TABLE };
+  const params: Record<string, unknown> = { TableName: CATEGORIES_TABLE };
   if (userId) {
     params.FilterExpression = 'userId = :uid';
     params.ExpressionAttributeValues = { ':uid': { S: userId } };
   }
-  const command = new ScanCommand(params);
+  const command = new ScanCommand(params as unknown as ScanCommandInput);
   const result = await client.send(command);
   return (result.Items || []).map((item) => ({
     id: item.id.S,
@@ -73,8 +76,8 @@ export async function updateCategory(
 ) {
   console.log('updateCategory input:', { id, name, color, monthlyBudget });
   let updateExpr = 'SET #n = :name';
-  const exprAttrNames: any = { '#n': 'name' };
-  const exprAttrValues: any = { ':name': { S: name } };
+  const exprAttrNames: Record<string, string> = { '#n': 'name' };
+  const exprAttrValues: Record<string, unknown> = { ':name': { S: name } };
   if (color !== undefined) {
     updateExpr += ', color = :color';
     exprAttrValues[':color'] = color ? { S: color } : { NULL: true };
@@ -83,7 +86,7 @@ export async function updateCategory(
     updateExpr += ', monthlyBudget = :monthlyBudget';
     exprAttrValues[':monthlyBudget'] = { N: monthlyBudget.toString() };
   }
-  const params: any = {
+  const params: Record<string, unknown> = {
     TableName: CATEGORIES_TABLE,
     Key: { id: { S: id } },
     UpdateExpression: updateExpr,
@@ -98,7 +101,9 @@ export async function updateCategory(
       ':uid': { S: userId },
     };
   }
-  const command = new UpdateItemCommand(params);
+  const command = new UpdateItemCommand(
+    params as unknown as UpdateItemCommandInput,
+  );
   const result = await client.send(command);
   console.log('updateCategory result:', result);
   return {
@@ -110,7 +115,7 @@ export async function updateCategory(
 }
 
 export async function deleteCategory(id: string, userId?: string) {
-  const params: any = {
+  const params: Record<string, unknown> = {
     TableName: CATEGORIES_TABLE,
     Key: { id: { S: id } },
   };
@@ -118,6 +123,8 @@ export async function deleteCategory(id: string, userId?: string) {
     params.ConditionExpression = 'userId = :uid';
     params.ExpressionAttributeValues = { ':uid': { S: userId } };
   }
-  const command = new DeleteItemCommand(params);
+  const command = new DeleteItemCommand(
+    params as unknown as DeleteItemCommandInput,
+  );
   await client.send(command);
 }

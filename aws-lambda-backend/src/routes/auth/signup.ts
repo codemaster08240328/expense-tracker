@@ -1,7 +1,7 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { hash } from 'bcryptjs';
-// @ts-ignore
-import { v4 as uuidv4 } from 'uuid'; // eslint-disable-line @typescript-eslint/no-var-requires
+// @ts-expect-error - uuid does not have TypeScript types
+import { v4 as uuidv4 } from 'uuid';
 import { putUser, getUserByEmail } from '@services/auth/userService';
 
 export async function signupHandler(

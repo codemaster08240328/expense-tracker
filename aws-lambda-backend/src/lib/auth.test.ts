@@ -1,3 +1,4 @@
+import type { APIGatewayProxyEvent } from 'aws-lambda';
 import jwt from 'jsonwebtoken';
 import { getUserIdFromEvent } from './auth';
 
@@ -7,8 +8,8 @@ jest.mock('jsonwebtoken', () => ({
 
 const mockVerify = jwt.verify as jest.MockedFunction<typeof jwt.verify>;
 
-function event(headers: Record<string, string> = {}): any {
-  return { headers };
+function event(headers: Record<string, string> = {}): APIGatewayProxyEvent {
+  return { headers } as unknown as APIGatewayProxyEvent;
 }
 
 describe('getUserIdFromEvent', () => {
@@ -24,7 +25,9 @@ describe('getUserIdFromEvent', () => {
   });
 
   it('extracts token from "Bearer <token>" and returns payload sub', () => {
-    mockVerify.mockReturnValue({ sub: 'user-123' } as any);
+    mockVerify.mockReturnValue({ sub: 'user-123' } as unknown as ReturnType<
+      typeof jwt.verify
+    >);
     const result = getUserIdFromEvent(
       event({ Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.xxx' }),
     );
@@ -36,7 +39,9 @@ describe('getUserIdFromEvent', () => {
   });
 
   it('uses raw header value as token when not Bearer format', () => {
-    mockVerify.mockReturnValue({ sub: 'user-456' } as any);
+    mockVerify.mockReturnValue({ sub: 'user-456' } as unknown as ReturnType<
+      typeof jwt.verify
+    >);
     const result = getUserIdFromEvent(
       event({ authorization: 'some-token-without-bearer' }),
     );
@@ -61,7 +66,9 @@ describe('getUserIdFromEvent', () => {
 
   it('uses JWT_SECRET from env when set', () => {
     process.env.JWT_SECRET = 'my-secret';
-    mockVerify.mockReturnValue({ sub: 'uid' } as any);
+    mockVerify.mockReturnValue({ sub: 'uid' } as unknown as ReturnType<
+      typeof jwt.verify
+    >);
     getUserIdFromEvent(event({ Authorization: 'Bearer t' }));
     expect(mockVerify).toHaveBeenCalledWith('t', 'my-secret');
   });

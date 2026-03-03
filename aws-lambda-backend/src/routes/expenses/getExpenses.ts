@@ -2,7 +2,8 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { getAllExpenses } from '@services/expenses/expenseService';
 
 export async function getExpensesHandler(
-  event: APIGatewayProxyEvent,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _event: APIGatewayProxyEvent,
 ): Promise<APIGatewayProxyResult> {
   try {
     const expenses = await getAllExpenses();
