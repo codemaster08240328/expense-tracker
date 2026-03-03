@@ -22,6 +22,9 @@
     "deploy": "pnpm deploy:backend && pnpm deploy:frontend",
     "lint:frontend": "pnpm --filter frontend exec eslint \"src/**/*.{ts,tsx,js,jsx}\"",
     "typecheck:frontend": "pnpm --filter frontend exec tsc --noEmit",
+    "test:backend": "pnpm --filter aws-lambda-backend run test",
+    "test:frontend": "pnpm --filter frontend run test",
+    "test": "pnpm run test:backend && pnpm run test:frontend",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,css,md}\"",
     "ci": "pnpm --filter aws-lambda-backend run build && pnpm run typecheck:frontend && pnpm run lint:frontend"
   },

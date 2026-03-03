@@ -45,8 +45,10 @@ export default function Login() {
         email: res.user.email,
       });
       navigate('/expenses', { replace: true });
-    } catch (e: any) {
-      setServerError(e?.message || 'Login failed. Please try again.');
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : 'Login failed. Please try again.';
+      setServerError(message);
     }
   };
 

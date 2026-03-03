@@ -24,6 +24,10 @@ import {
 import { api } from '../api/client';
 import CategoryLegend from '../components/chartwidgets/CategoryLegend';
 import CustomizedLabel from '../components/chartwidgets/CustomizedLabel';
+import {
+  computeByCategory,
+  computeMonthlyTotals,
+} from '../utils/reports';
 import type { Category, Expense } from '../types';
 
 const COLORS = [
@@ -44,35 +48,15 @@ export default function Reports() {
     api.getCategories().then(setCategories);
   }, []);
 
-  const byMonth = useMemo(() => {
-    const year = new Date().getFullYear();
-
-    // Initialize all 12 months with 0
-    const monthlyTotals = Array.from({ length: 12 }, (_, i) => ({
-      month: new Date(year, i).toLocaleString('default', { month: 'short' }),
-      total: 0,
-    }));
-
-    expenses.forEach((e) => {
-      const date = new Date(e.date);
-      if (date.getFullYear() === year) {
-        const monthIndex = date.getMonth();
-        monthlyTotals[monthIndex].total += e.amount;
-      }
-    });
-
-    return monthlyTotals;
-  }, [expenses]);
+  const byMonth = useMemo(
+    () => computeMonthlyTotals(expenses, new Date().getFullYear()),
+    [expenses],
+  );
 
   const byCategory = useMemo(() => {
-    const map = new Map<string, number>();
-    expenses.forEach((e) => {
-      map.set(e.categoryId, (map.get(e.categoryId) || 0) + e.amount);
-    });
-    return Array.from(map.entries()).map(([categoryId, value], idx) => ({
-      name: categories.find((c) => c.id === categoryId)?.name ?? 'Unknown',
-      value: value,
-      // include both 'fill' (used by Pie) and 'color' (used for Legend payload)
+    const items = computeByCategory(expenses, categories);
+    return items.map((item, idx) => ({
+      ...item,
       fill: COLORS[idx % COLORS.length],
       color: COLORS[idx % COLORS.length],
     }));

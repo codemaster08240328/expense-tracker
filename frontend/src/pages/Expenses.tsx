@@ -17,6 +17,8 @@ import {
 import { ExpensesFilters } from '../components/ExpensesFilters';
 import { ExpensesListView } from '../components/ExpensesListView';
 import type { Category, Expense } from '../types';
+import { filterExpenses } from '../utils/filterExpenses';
+import { localDateToISOString } from '../utils/date';
 
 // Page-level state and handlers only — dialogs handle form state internally
 export default function Expenses() {
@@ -32,22 +34,15 @@ export default function Expenses() {
   const [to, setTo] = useState<string>('');
   const [categoryFilter, setCategoryFilter] = useState<string>('');
 
-  const filtered = useMemo(() => {
-    return expenses.filter((e) => {
-      const date = new Date(e.date).getTime();
-      const okFrom = from ? date >= new Date(from).getTime() : true;
-      const okTo = to ? date <= new Date(to).getTime() : true;
-      const okCat = categoryFilter ? e.categoryId === categoryFilter : true;
-      return okFrom && okTo && okCat;
-    });
-  }, [expenses, from, to, categoryFilter]);
-
-  // Convert a date string from input (YYYY-MM-DD) to an ISO string at local midnight.
-  const localDateToISOString = (dateStr: string) => {
-    const [y, m, d] = dateStr.split('-').map((v) => Number(v));
-    const dt = new Date(y, m - 1, d); // local midnight
-    return dt.toISOString();
-  };
+  const filtered = useMemo(
+    () =>
+      filterExpenses(expenses, {
+        from: from || undefined,
+        to: to || undefined,
+        categoryId: categoryFilter || undefined,
+      }),
+    [expenses, from, to, categoryFilter],
+  );
 
   const createExpense = async (values: ExpenseDialogValues) => {
     try {
@@ -55,7 +50,7 @@ export default function Expenses() {
         description: values.description.trim(),
         amount: Number(values.amount),
         categoryId: values.categoryId.trim(),
-        date: localDateToISOString(values.date),
+        date: localDateToISOString(values.date as string),
       });
       setExpenses((prev) => [...prev, created]);
       setOpenCreate(false);
@@ -72,7 +67,7 @@ export default function Expenses() {
         description: values.description.trim(),
         amount: Number(values.amount),
         categoryId: values.categoryId,
-        date: localDateToISOString(values.date),
+        date: localDateToISOString(values.date as string),
       });
 
       setExpenses((prev) =>
