@@ -1,0 +1,13 @@
+# Dependencies
+node_modules/
+
+# Backend build
+aws-lambda-backend/dist/
+aws-lambda-backend/.serverless/
+
+# Frontend build
+frontend/dist/
+
+# Coverage and caches
+coverage/
+*.tsbuildinfo

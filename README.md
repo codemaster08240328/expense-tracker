@@ -1,117 +1,164 @@
-# Prerequisites
+# Expense Tracker
 
-- Node.js v18+ (recommended: check with `node -v`)
-- pnpm v8+ (install with `npm i -g pnpm`)
-- AWS CLI (for backend deployment)
-- Serverless Framework or AWS SAM CLI (for backend deployment)
+Monorepo for the Expense Tracker app: AWS Lambda backend (API + auth) and React frontend.
+
+## Prerequisites
+
+- **Node.js** v18+ (`node -v`)
+- **pnpm** v8+ — `npm install -g pnpm`
+- **AWS CLI** — for deployment ([install](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html))
+- **Serverless Framework** — installed via `pnpm run setup:aws` (or `pnpm add -g serverless`)
+
+## Repository structure
+
+| Package               | Description                                               |
+| --------------------- | --------------------------------------------------------- |
+| `aws-lambda-backend/` | API (Node.js, TypeScript, Serverless, DynamoDB), JWT auth |
+| `frontend/`           | React app (Vite, TypeScript, MUI)                         |
+
+[pnpm workspaces](https://pnpm.io/workspaces) — root install and scripts from repo root.
 
 ---
 
-# aws-lambda Monorepo
+## Quick start
 
-This repository is now structured as a monorepo using [pnpm workspaces](https://pnpm.io/workspaces).
+```bash
+git clone <repo-url>
+cd expense-tracker
 
-## Structure
+pnpm install
+pnpm run setup:aws    # optional: AWS CLI + Serverless + env setup
+pnpm run genenv       # copy .env.example → .env where missing
+# Edit aws-lambda-backend/.env and frontend/.env as needed
 
-- `aws-lambda-backend/` — AWS Lambda backend (Node.js, TypeScript, Serverless)
-- `frontend/` — Frontend application (React, Vite, TypeScript)
+pnpm run build
+pnpm run dev          # backend (serverless offline) + frontend (Vite)
+```
 
-## Getting Started
+---
 
-## Setup Instructions
+## Setup (detailed)
 
-1. **Clone the repository**
+1. **Clone and install**
 
-   ```sh
+   ```bash
    git clone <repo-url>
-   cd <repo-name>
+   cd expense-tracker
+   pnpm install
    ```
 
-2. **Install dependencies and set up AWS environment**
+2. **Environment files**
 
-   ```sh
-   pnpm install
+   ```bash
+   pnpm run genenv
+   ```
+
+   - Creates `aws-lambda-backend/.env` and frontend env files from `.env.example` if missing.
+   - Edit `aws-lambda-backend/.env` and `frontend/.env` (or `.env.development` / `.env.production`) with your values. See the `.env.example` files for required variables.
+
+3. **AWS setup (for deploy or serverless offline)**
+
+   ```bash
    pnpm run setup:aws
    ```
 
-   This will:
+   - Ensures `.env` files exist
+   - Installs AWS CLI if missing (Linux x64)
+   - Installs Serverless globally
+   - Runs `scripts/aws-env-setup.ts` to configure AWS credentials from `.env`
 
-   - Generate `.env` files from `.env.example` if missing
-   - Install AWS CLI (if not already installed)
-   - Install Serverless Framework globally
-   - Configure AWS CLI credentials from your `.env` file
+4. **Build and run**
 
-3. **Edit environment variables**
-
-   - Open `aws-lambda-backend/.env` and `frontend/.env` and fill in the required values (see comments in each file for descriptions).
-
-4. **Build all packages**
-
-   ```sh
+   ```bash
    pnpm run build
-   ```
-
-5. **Run in development mode**
-   ```sh
    pnpm run dev
    ```
 
----
-
-## Environment Variables
-
-- See `backend/.env.example` and `frontend/.env.example` for all required variables and descriptions.
-- Place `.env` files in the respective package directories (`backend/.env`, `frontend/.env`).
-- The app will fail gracefully with helpful messages if required variables are missing.
+   Or run backend and frontend separately: `pnpm run dev:backend`, `pnpm run dev:frontend`.
 
 ---
 
-## How to Deploy
+## Environment variables
+
+| Location                                                    | Purpose                                                |
+| ----------------------------------------------------------- | ------------------------------------------------------ |
+| `aws-lambda-backend/.env`                                   | API keys, DynamoDB table names, JWT secret, AWS region |
+| `frontend/.env` (or `.env.development` / `.env.production`) | `VITE_API_URL` and any other Vite env vars             |
+
+See `aws-lambda-backend/.env.example` and `frontend/.env.example` for full lists and descriptions. The app will warn if required variables are missing.
+
+---
+
+## Deploy
 
 ### Backend (AWS Lambda)
 
-Using Serverless Framework for all local and cloud development:
+Configuration: `aws-lambda-backend/serverless.yml`. No SAM/template.yml needed.
 
-**Deploy to AWS:**
-
-```sh
+```bash
 pnpm run deploy:backend
 ```
 
-**Emulate locally (API Gateway, Lambda):**
+Local API emulation (API Gateway + Lambda):
 
-```sh
-pnpm --filter aws-lambda-backend exec serverless offline
+```bash
+pnpm run dev:backend
+# or: pnpm --filter aws-lambda-backend exec serverless offline
 ```
-
-No template.yml or AWS SAM required. All configuration is in `aws-lambda-backend/serverless.yml`.
 
 ### Frontend
 
-After building, deploy the contents of `frontend/dist` to your static hosting (S3, Vercel, Netlify, etc).
+Build, then deploy `frontend/dist` to your static host (e.g. S3, Vercel, Netlify).
+
+```bash
+pnpm run build:frontend
+pnpm run deploy:frontend   # example: syncs to S3 bucket expense-tracker-2026
+```
+
+Deploy backend and frontend in one go:
+
+```bash
+pnpm run deploy:all
+```
+
+---
+
+## Scripts (root)
+
+| Script                     | Description                                          |
+| -------------------------- | ---------------------------------------------------- |
+| `pnpm run genenv`          | Copy `.env.example` → `.env` in backend and frontend |
+| `pnpm run setup:aws`       | AWS CLI + Serverless + credential setup from `.env`  |
+| `pnpm run build`           | Build backend and frontend                           |
+| `pnpm run dev`             | Run backend (serverless offline) and frontend (Vite) |
+| `pnpm run dev:backend`     | Backend only (serverless offline)                    |
+| `pnpm run dev:frontend`    | Frontend only (Vite dev server)                      |
+| `pnpm run deploy:backend`  | Deploy Lambda/API (Serverless)                       |
+| `pnpm run deploy:frontend` | Deploy frontend (e.g. S3 sync)                       |
+| `pnpm run deploy:all`      | Deploy backend then frontend                         |
+| `pnpm run typecheck`       | TypeScript check (backend + frontend)                |
+| `pnpm run lint`            | ESLint (backend + frontend)                          |
+| `pnpm run test`            | Jest (backend) + Vitest (frontend)                   |
+| `pnpm run format`          | Prettier format                                      |
+| `pnpm run ci`              | Build backend, typecheck frontend, lint both         |
+
+Run a script in one workspace: `pnpm --filter aws-lambda-backend <script>` or `pnpm --filter frontend <script>`.
 
 ---
 
 ## Troubleshooting
 
-- Ensure you are using the correct Node.js and pnpm versions.
-- If you see missing environment variable errors, check your `.env` files and ensure all required variables are set.
-- For AWS deployment issues, verify your AWS credentials and CLI configuration.
-- For frontend API errors, check that the backend is running and the `VITE_API_URL` is set correctly in `frontend/.env`.
+- **Node / pnpm version** — Use Node 18+ and pnpm 8+ (see `.nvmrc` if you use nvm).
+- **Missing env vars** — Ensure `aws-lambda-backend/.env` and `frontend/.env` (or `.env.development`) exist and required variables are set; see `.env.example` files.
+- **AWS deploy** — Verify AWS credentials and region; run `aws sts get-caller-identity` to confirm.
+- **Frontend API errors** — Ensure backend is running and `VITE_API_URL` in frontend env points to it (e.g. `http://localhost:3000/dev` for serverless offline).
 
 ---
 
-## Monorepo Tooling
+## Monorepo notes
 
-- Managed with `pnpm` and `pnpm-workspace.yaml`
-- Each package manages its own scripts and dependencies
+- Root managed with **pnpm** and `pnpm-workspace.yaml`.
+- Each package has its own dependencies and scripts; run from root with `pnpm --filter <package> <command>`.
+- For shared code, consider a `packages/shared` workspace and the `workspace:*` protocol.
 
-## Best Practices
-
-- Keep shared code in a separate package if needed (e.g., `packages/shared`)
-- Use workspace protocol for cross-package dependencies
-- Run scripts from the root with `pnpm --filter <package> <command>`
-
----
-
-For more details, see individual package READMEs.
+More detail: `aws-lambda-backend/README.md`, `frontend/README.md`.
